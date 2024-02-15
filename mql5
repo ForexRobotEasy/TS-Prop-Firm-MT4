@@ -1,0 +1,115 @@
+
+//+------------------------------------------------------------------+
+//|                                                     TS Prop Firm |
+//|                                 Developer's site: forexroboteasy.com|
+//|                                      Development: Forex Robot Easy Team|
+//+------------------------------------------------------------------+
+
+// Define input parameters
+input int RiskLevel = 2; // 1-Low, 2-Medium, 3-High
+input bool NewsFilter = true; // Enable news filter
+
+// Define trading symbols
+string symbol1 = 'EURUSD';
+string symbol2 = 'XAUUSD';
+string symbol3 = 'US30';
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+   // Set news event filter
+   if(NewsFilter)
+   {
+      SetNewsFilter();
+   }
+   
+   return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+   // Remove news event filter
+   if(NewsFilter)
+   {
+      RemoveNewsFilter();
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Set news event filter                                            |
+//+------------------------------------------------------------------+
+void SetNewsFilter()
+{
+   // Get current hour
+   datetime currentTime = TimeCurrent();
+   int hour = TimeHour(currentTime);
+   
+   // Set filter for 60 minutes before and after high impact news events
+   if(hour >= 8 && hour <= 20)
+   {
+      int minute = TimeMinute(currentTime);
+      
+      if(minute >= 0 && minute <= 59)
+      {
+         int newsHour = hour + 1;
+         
+         if(newsHour >= 8 && newsHour <= 20)
+         {
+            string newsEvent = 'High Impact News Event';
+            datetime newsTime = StrToTime(DayToString(Day()) + ' ' + HourMinuteToString(newsHour, 0));
+            datetime newsStartTime = newsTime - PeriodSeconds(PERIOD_M1) * 60;
+            datetime newsEndTime = newsTime + PeriodSeconds(PERIOD_M1) * 60;
+            
+            // Set filter for specified symbols
+            SymbolSetInteger(symbol1, SYMBOL_DISABLE_PERIOD, newsStartTime, newsEndTime, true);
+            SymbolSetInteger(symbol2, SYMBOL_DISABLE_PERIOD, newsStartTime, newsEndTime, true);
+            SymbolSetInteger(symbol3, SYMBOL_DISABLE_PERIOD, newsStartTime, newsEndTime, true);
+            
+            Comment('Avoiding opening positions for 60 minutes before and after high-impact news events.');
+         }
+      }
+   }
+}
+
+//+------------------------------------------------------------------+
+//| Remove news event filter                                         |
+//+------------------------------------------------------------------+
+void RemoveNewsFilter()
+{
+   // Remove filter for specified symbols
+   SymbolSetInteger(symbol1, SYMBOL_DISABLE_PERIOD, 0, 0, false);
+   SymbolSetInteger(symbol2, SYMBOL_DISABLE_PERIOD, 0, 0, false);
+   SymbolSetInteger(symbol3, SYMBOL_DISABLE_PERIOD, 0, 0, false);
+   
+   Comment('News event filter removed.');
+}
+
+//+------------------------------------------------------------------+
+//| Expert start function                                            |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+   // Trading logic based on risk level
+   switch(RiskLevel)
+   {
+      case 1: // Low risk
+         // Place low risk trading logic here
+         Comment('Low risk trading logic executed.');
+         break;
+      case 2: // Medium risk
+         // Place medium risk trading logic here
+         Comment('Medium risk trading logic executed.');
+         break;
+      case 3: // High risk
+         // Place high risk trading logic here
+         Comment('High risk trading logic executed.');
+         break;
+   }
+}
+
+//+------------------------------------------------------------------+
